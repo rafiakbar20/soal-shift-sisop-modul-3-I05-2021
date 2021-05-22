@@ -159,3 +159,181 @@ Directory Structure:
     ├── File2.extension
     └── File1.extension
 ```
+
+# SOLUTION
+
+Here are the libraries used to solve this problem:
+
+#include <stdio.h> = for standard input-output
+
+#include <sys/socket.h> = to run socket
+
+#include <stdlib.h> = for general functions
+
+#include <netinet/in.h> = for internet domain addresses
+
+#include <string.h> = to perform string manipulation, for example strcmp ()
+
+#include <errno.h> = to give additional errors to the system
+
+#include <unistd.h> = to fork a system call ()
+
+#include <arpa/inet.h> = for internet operations
+
+#include <sys/types.h> = for data types
+
+#include <sys/stat.h> = for data returned by the stat() function
+
+```
+#define PORT 8080
+#define SIZE 1024
+```
+Define server port and SIZE for later usse
+
+# A.)
+
+Source Code
+
+*Server
+```
+
+```
+
+*Client
+```
+
+```
+
+Explanation
+
+Screenshot
+
+# B.)
+
+Source Code
+
+*Server
+```
+
+```
+
+*Client
+```
+
+```
+
+Explanation
+
+Screenshot
+
+# C.)
+
+Source Code
+
+*Server
+```
+
+```
+
+*Client
+```
+
+```
+
+Explanation
+
+Screenshot
+
+# D.)
+
+Source Code
+
+*Server
+```
+
+```
+
+*Client
+```
+
+```
+
+Explanation
+
+Screenshot
+
+# E.)
+
+Source Code
+
+*Server
+```
+
+```
+
+*Client
+```
+
+```
+
+Explanation
+
+Screenshot
+
+# F.)
+
+Source Code
+
+*Server
+```
+
+```
+
+*Client
+```
+
+```
+
+Explanation
+
+Screenshot
+
+# G.)
+
+Source Code
+
+*Server
+```
+
+```
+
+*Client
+```
+
+```
+
+Explanation
+
+Screenshot
+
+# H.)
+
+Source Code
+
+*Server
+```
+
+```
+
+*Client
+```
+
+```
+
+Explanation
+
+Screenshot
+
+Problems
+
+
