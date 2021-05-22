@@ -284,6 +284,64 @@ Server Global Iniitialization
 ```
 
 
+Server Command Function
+```
+int command(char buffer[], int *flag)
+{
+    if (strcmp(buffer, "add") == 0) {
+        sprintf(buffer, "Publisher:");
+        return 1;
+    } else if(strcmp(buffer, "delete") == 0){
+        return 2;
+    } else if(strcmp(buffer, "see") == 0){
+        return 3;
+    } else if(strcmp(buffer, "find") == 0){
+        return 4;
+    } else if(strcmp(buffer, "download") == 0){
+        return 5;
+    } else if(strcmp(buffer, "exit") == 0){
+        (*flag) = 0;
+        sprintf(buffer, "Exiting..");
+        return 0;
+    }
+    return 0;
+}
+```
+
+
+Server Status Function
+```
+int lr(char buffer[], int *flag)
+{
+    if (strcmp(buffer, "login") == 0) {
+        sprintf(buffer, "Expecting id...");
+        return 1;
+    }
+    else if (strcmp(buffer, "register") == 0) {
+        sprintf(buffer, "Expecting id...");
+        return 2;
+    } else if(strcmp(buffer, "exit") == 0){
+        (*flag) = 0;
+        sprintf(buffer, "Exiting..");
+        return 3;
+    }
+    return 0;
+}
+```
+
+
+Server Locate Function
+```
+int locate(char fullpath[], char sy){
+    int len = strlen(fullpath);
+    while(--len){
+        if(fullpath[len] == sy) break;
+    }
+    return len;
+}
+```
+
+
 Client
 Client Function Initialization
 ```
@@ -351,18 +409,135 @@ Client Global Initialization
 	  char *c_exit = "exit";
 ```
 
+Client Input (User Input)
+```
+    	printf("Please input the command\n");
+        scanf("%s", command);
+```
+
 # A.)
 
 Source Code
 
 *Server
 ```
+        while(flag == 1 && auth == 0){
+        	
+            fclose(akun);
+            akun = fopen(pathing(source, "/account.txt", result), "a+");
+            
+            memset(buffer, 0, sizeof(buffer));
+            read(new_socket, buffer, 1024);
+            
+            info = lr(buffer, &flag);
+            send(new_socket, buffer, strlen(buffer), 0);
+            
+            if(info == 1) { //login
+                char login[1024];
+                char pass[1024];
+                
+                memset(buffer, 0, sizeof(buffer)); //id
+                read(new_socket, buffer, 1024);
+                
+                strcpy(login, buffer);
+                send(new_socket, "Expecting pass...", strlen("Expecting pass..."), 0);
+                
+                memset(buffer, 0, sizeof(buffer)); // pass
+                read(new_socket, buffer, 1024);
+                strcpy(pass, buffer);
+                
+                while(fgets(check, sizeof(check), akun))
+                {
+                    char *ptr = strtok(check,delim);
+                    if (strcmp(ptr, login) == 0) 
+                    {
+                        ptr = strtok(NULL,delim);
+                        ptr[strcspn(ptr,"\n")]='\0';
+                        // printf("%d\n",strcmp(ptr, pass));
+                        if (strcmp(ptr, pass) == 0) 
+                        {
+                            sprintf(user,"%s:%s", login, pass);//warning
+                            auth=1;
+                            break;
+                        }
+                    }
+                }
+                if(auth == 1)
+                	send(new_socket, "Login berhasil", strlen("Login berhasil"), 0);
+                else{
+                	send(new_socket, "Login gagal", strlen("Login gagal"), 0);
+				}
+            } else if(info == 2){ //register
+                int pesan = 0;
+                char login[1024];
+                char pass[1024];
+                
+                memset(buffer, 0, sizeof(buffer)); //id
+                read(new_socket, buffer, 1024);
+                
+                strcpy(login, buffer);
+                send(new_socket, "Expecting pass...", strlen("Expecting pass..."), 0);
+                
+                memset(buffer, 0, sizeof(buffer)); // pass
+                read(new_socket, buffer, 1024);
+                strcpy(pass, buffer);
+                
+                while(fgets(check, sizeof(check), akun))
+                {
+                    char *ptr = strtok(check,delim);
+                    puts(ptr);
+                    puts(login);
+                    if (strcmp(ptr, login) == 0) 
+                    {
+                        pesan = 1;
+                        break;
+                    }
+                }
+                if(pesan == 0){
+                    fputs(login, akun);
+                    fputs(":", akun);
+                    fputs(pass, akun);
+                    fputs("\n", akun);
+                }
 
+                if(pesan == 0)
+                send(new_socket, "Berhasil mendaftar.", strlen("Berhasil mendaftar."), 0);
+                else send(new_socket, "Gagal mendaftar.", strlen("Gagal mendaftar."), 0);
+            }
+        }
+```
+
+*Helper Function (Server)
+```
+int lr(char buffer[], int *flag)
+{
+    if (strcmp(buffer, "login") == 0) {
+        sprintf(buffer, "Expecting id...");
+        return 1;
+    }
+    else if (strcmp(buffer, "register") == 0) {
+        sprintf(buffer, "Expecting id...");
+        return 2;
+    } else if(strcmp(buffer, "exit") == 0){
+        (*flag) = 0;
+        sprintf(buffer, "Exiting..");
+        return 3;
+    }
+    return 0;
+}
 ```
 
 *Client
 ```
+    	printf("Please input the command\n");
+        scanf("%s", command);
+```
 
+```
+        send(client_fd, command, strlen(command), 0);
+        memset(command, 0, sizeof(command));
+        read(client_fd, command, 1024);
+        printf("%s\n", command);
 ```
 
 Explanation
@@ -375,12 +550,33 @@ Source Code
 
 *Server
 ```
-
+        fclose(files);
+        fclose(log);
+        
+        files = fopen(pathing(source, "/files.tsv", result), "a+");
+        log = fopen(pathing(source, "/log.tsv", result), "a+");
+        
+        memset(display, 0, strlen(display));
+        memset(buffer, 0, sizeof(buffer));
+        
+        read(new_socket, buffer, 1024);
+        info = command(buffer, &flag);
 ```
 
-*Client
+*Helper Function (Server)
 ```
-
+void addtsv(FILE *files, char nama[], char publisher[], char tahun[], char ekstensi[], char path[]){
+    fputs(nama, files);
+    fputc("\t", files);
+    fputs(publisher, files);
+    fputc("\t", files);
+    fputs(tahun, files);
+    fputc("\t", files);
+    fputs(ekstensi, files);
+    fputc("\t", files);
+    fputs(path, files);
+    fputc("\t", files);
+}
 ```
 
 Explanation
@@ -393,12 +589,113 @@ Source Code
 
 *Server
 ```
-
+        if(info == 1){
+        	
+            char comp[1024];
+            char nama[1024];
+            char publish[1024];
+            char tahun[1024];
+            char eks[1024];
+            char pathnya[1024];
+            
+            send(new_socket, buffer, strlen(buffer), 0);
+            memset(buffer, 0, sizeof(buffer));
+            
+            read(new_socket, buffer, 1024);
+            strcpy(publish,buffer);
+            send(new_socket, "Tahun publikasi:", strlen("Tahun publikasi:"), 0);
+            memset(buffer, 0, sizeof(buffer));
+            
+            read(new_socket, buffer, 1024);
+            strcpy(tahun,buffer);
+            send(new_socket, "Filepath:", strlen("Filepath:"), 0);
+            memset(buffer, 0, sizeof(buffer));
+            
+            read(new_socket, buffer, 1024);
+            send(new_socket, "Transferring..", strlen("Transferring.."), 0);
+            strcpy(comp,buffer);
+            
+            char *ptr;
+            
+            ptr = comp + locate(comp,'/') + 1;
+            strcpy(nama,ptr);
+            
+            logging(log,1,nama);
+            strcpy(comp,nama);
+            
+            ptr = comp + locate(comp,'.') + 1;
+            strcpy(eks,ptr);
+            
+            char *p = strtok(comp,".");
+            strcpy(nama,p);
+            
+            sprintf(display,"%s/FILES/%s.%s",source,nama,eks);
+            
+            char data[1024];
+            FILE *rcv;
+            rcv = fopen(display,"wb");
+            int n;
+            while (1) {
+                n = recv(new_socket, data, 1024, 0);
+                if (strcmp(data,"END")==0){
+                break;
+                }
+                fwrite(data,1,sizeof(data),rcv);
+                // puts("...");
+                bzero(data, 1024);
+            }
+            fclose(rcv);
+            addtsv(files,nama,publish,tahun,eks,display);
+            continue;
 ```
 
 *Client
 ```
-
+        if(strcmp(command,c_add)==0){
+            send(client_fd, command, strlen(command), 0); //add
+            memset(command, 0, sizeof(command));
+            read(client_fd, command, 1024);
+            printf("%s\n", command);
+            scanf("%s", command);
+            
+            send(client_fd, command, strlen(command), 0); //publisher
+            memset(command, 0, sizeof(command));
+            read(client_fd, command, 1024);
+            printf("%s\n", command);
+            scanf("%s", command);
+            
+            send(client_fd, command, strlen(command), 0); //tahun
+            memset(command, 0, sizeof(command));
+            read(client_fd, command, 1024);
+            printf("%s\n", command);
+            scanf("%s", command);
+            
+            send(client_fd, command, strlen(command), 0); //filepath
+            strcpy(result,command);
+            memset(command, 0, sizeof(command));
+            read(client_fd, command, 1024);
+            printf("%s\n", command);
+            memset(command, 0, sizeof(command));
+            
+            // sleep(5);
+            FILE *fp;
+            fp = fopen(result,"rb");
+            if (fp == NULL) {
+                perror("[-]Error in reading file.");
+                exit(1);
+            }
+            char data[SIZE] = {0};
+            int n;
+            do{
+                n = fread(data, 1,1024, fp);
+                send(client_fd, data, sizeof(data), 0);
+                // puts(",,,");
+            } while(n == sizeof(data));
+            memset(command, 0, sizeof(command));
+            fclose(fp);
+            send(client_fd, "END", sizeof("END"), 0);
+            continue;
+        }
 ```
 
 Explanation
@@ -411,12 +708,94 @@ Source Code
 
 *Server
 ```
+else if(info == 5){
+            int muncul =0;
+            sprintf(buffer, "Downloading..");
+            send(new_socket, buffer, strlen(buffer), 0);
+            memset(buffer, 0, sizeof(buffer));
+            read(new_socket, buffer, 1024);
+            sprintf(display,"%s/FILES/%s",source,buffer);
+            char *p;
+            char na[1024],nana[1024], eks[1024];
+            strcpy(na,buffer);
+            p = buffer + locate(buffer,'.');
+            strcpy(eks,p);
+            char *pna = strtok(na,".");
+            strcpy(nana,pna);
+            while(fgets(check, 1024 , files)) //check validity
+            {
+                int i = 0;
+                char comp[1024];
+                
+                strcpy(comp,check);
+                
+                char iter[5][1024];
+                char *ptr = strtok(comp,"\t");
 
+                while( ptr != NULL){
+                    strcpy(iter[i++],ptr);
+                    ptr = strtok(NULL,"\t");
+                }
+                
+                if (strcmp(iter[0], nana) == 0 && strcmp(iter[3], eks) == 0) 
+                {
+                    muncul++;
+                }
+            }
+            fclose(files);
+            files = fopen(pathing(source, "/files.tsv", result), "a+");
+            if(muncul == 0) send(new_socket, "END", sizeof("END"), 0);
+            if(muncul > 0){
+                FILE *fp;
+                fp = fopen(display,"rb");
+                if (fp == NULL) {
+                    perror("[-]Error in reading file.");
+                    exit(1);
+                }
+                char data[SIZE] = {0};
+                int n;
+                do{
+                    n = fread(data, 1,1024, fp);
+                    send(new_socket, data, sizeof(data), 0);
+                    // puts(",,,");
+                } while(n == sizeof(data));
+                memset(data, 0, sizeof(data));
+                fclose(fp);
+                send(new_socket, "END", sizeof("END"), 0);
+            } else {
+                sprintf(buffer, "File tidak valid, mohon dicek kembali");
+            }
+            continue;
+        }
 ```
 
 *Client
 ```
-
+        else if(strcmp(command,c_download)==0){
+            send(client_fd, command, strlen(command), 0); //download
+            memset(command, 0, sizeof(command));
+            read(client_fd, command, 1024);
+            printf("%s\n", command);
+            scanf("%s", command);
+            
+            send(client_fd, command, strlen(command), 0); //file
+            char data[1024];
+            FILE *rcv;
+            sprintf(result,"%s/%s",source,command);//warning
+            rcv = fopen(result,"wb");
+            int n;
+            
+            while (1) {
+                n = recv(client_fd, data, 1024, 0);
+                if (strcmp(data,"END")==0){
+                break;
+                }
+                fwrite(data,1,sizeof(data),rcv);
+                // puts("...");
+                bzero(data, 1024);
+            }
+            fclose(rcv);
+            continue;
 ```
 
 Explanation
@@ -429,12 +808,71 @@ Source Code
 
 *Server
 ```
+ else if(info == 2){
+            sprintf(buffer, "Processing..");
+            send(new_socket, buffer, strlen(buffer), 0);
+            memset(buffer, 0, sizeof(buffer));
+            read(new_socket, buffer, 1024);
+            if(deletefile(files,buffer,source,result) == 1)
+            logging(log,2,buffer);
+            fclose(files);
+            remove(pathing(source, "/files.tsv", result));
 
+            char result2[100];
+            strcpy(result2,pathing(source, "/files.tsv", result));
+            rename(pathing(source, "/temp.tsv", result), result2);
+
+            files = fopen(pathing(source, "/files.tsv", result), "a+");
+            sprintf(buffer, "Processed..");
+        }
 ```
 
-*Client
+*Helper Function (Server)
 ```
+int deletefile(FILE *files, char name[], char source[], char result[]){
+    int flag=0;
+    char check[1024];
+    FILE *temp;
+    temp = fopen(pathing(source, "/temp.tsv", result), "a+");
+    char *p;
+    char na[1024],nana[1024], eks[1024];
+    strcpy(na,name);
+    p = name + locate(name,'.') +1;
+    strcpy(eks,p);
+    char *pna = strtok(na,".");
+    strcpy(nana,pna);
+    // puts(nana);
+    //     puts(eks);
+    while(fgets(check, sizeof(check), files) != NULL)
+    {
+        int i = 0;
+        char comp[1024];
+        
+        strcpy(comp,check);
+        
+        char iter[5][1024];
+        char *ptr = strtok(comp,"\t");
 
+        while( ptr != NULL){
+            strcpy(iter[i++],ptr);
+            ptr = strtok(NULL,"\t");
+        }
+        
+        if (strcmp(iter[0], nana) == 0 && strcmp(iter[3], eks) == 0) 
+        {
+            flag=1;
+            continue;
+        }
+        fputs(check, temp);
+    }
+    fclose(temp);
+
+    char result3[100];
+    strcpy(result3,pathing(pathing(pathing(source, "/FILES/", result), "old-", result),name,result));
+    rename( pathing(pathing(source, "/FILES/", result), name, result), result3);
+
+    return flag;
+}
 ```
 
 Explanation
@@ -447,12 +885,38 @@ Source Code
 
 *Server
 ```
-
+else if(info == 3){
+            see(files, check, display);
+            send(new_socket, display, strlen(display), 0);
+            continue;
+        }
 ```
 
-*Client
+*Helper Function (Server)
 ```
+void see(FILE *files, char check[], char display[]){
+    int muncul = 0;
+    while(fgets(check, 1024 , files) != NULL)
+    {
+        int i = 0;
+        char comp[1024];
+        strcpy(comp,check);
+        char iter[5][1024];
+        char *ptr = strtok(comp,"\t");
 
+        while( ptr != NULL){
+            strcpy(iter[i++],ptr);
+            ptr = strtok(NULL,"\t");
+        }
+        muncul++;
+        sprintf(display + strlen(display),"\nNama:%s\n",iter[0]);
+        sprintf(display + strlen(display),"Publisher:%s\n",iter[1]);
+        sprintf(display + strlen(display),"Tahun publishing:%s\n",iter[2]);
+        sprintf(display + strlen(display),"Ekstensi File:%s\n",iter[3]);
+        sprintf(display + strlen(display),"Filepath:%s",iter[4]);
+    }
+    if(muncul == 0) sprintf(display + strlen(display),"Nama file tidak ditemukan");
+}
 ```
 
 Explanation
@@ -465,12 +929,61 @@ Source Code
 
 *Server
 ```
-
+else if(info == 4){
+            sprintf(buffer, "Finding..");
+            send(new_socket, buffer, strlen(buffer), 0);
+            memset(buffer, 0, sizeof(buffer));
+            read(new_socket, buffer, 1024);
+            find(files, check, display, buffer);
+            send(new_socket, display, strlen(display), 0);
+            continue;
+        }
 ```
 
-*Client
+*Helper Function (Server)
 ```
+void find(FILE *files, char check[], char display[], char buffer[]){
+    int muncul = 0;
+    while(fgets(check, 1024 , files)!= NULL)
+    {
+        if(feof(files)){
+            sprintf(display + strlen(display),"files.tsv kosong");
+            return;
+        }
+        int i = 0;
+        char comp[1024];
+        strcpy(comp,check);
+        char iter[5][1024];
+        char *ptr = strtok(comp,"\t");
+        if(strcmp(buffer, ptr) == 0){
+            muncul++;
+        }
+    }
+    fclose(files);
+    files = fopen(pathing("/home/alvancho/Documents/IO5/Shift_3/Soal_1/Server", "/files.tsv", check), "a+");
+    if(muncul > 0)
+    while(fgets(check, 1024 , files))
+    {
+        int i = 0;
+        char comp[1024];
+        strcpy(comp,check);
+        char iter[5][1024];
+        char *ptr = strtok(comp,"\t");
+        if(strcmp(buffer, ptr) != 0) continue;
 
+        while( ptr != NULL){
+            strcpy(iter[i++],ptr);
+            ptr = strtok(NULL,"\t");
+        }
+        
+        sprintf(display + strlen(display),"\nNama:%s\n",iter[0]);
+        sprintf(display + strlen(display),"Publisher:%s\n",iter[1]);
+        sprintf(display + strlen(display),"Tahun publishing:%s\n",iter[2]);
+        sprintf(display + strlen(display),"Ekstensi File:%s\n",iter[3]);
+        sprintf(display + strlen(display),"Filepath:%s",iter[4]);
+    }
+    else sprintf(display + strlen(display),"Nama file tidak ditemukan");
+}
 ```
 
 Explanation
@@ -483,12 +996,22 @@ Source Code
 
 *Server
 ```
-
+void logging(FILE* log,int tipe, char nama[]){
+    char result[1024];
+    if(tipe == 1){
+        sprintf(result,"Tambah : %s (%s)\n",nama,user);//warning
+        fputs(result,log);
+    } else if(tipe == 2){
+        sprintf(result,"Hapus : %s (%s)\n",nama,user);//warning
+        fputs(result,log);
+    }
+}
 ```
 
-*Client
+*Initialization
 ```
-
+    FILE* log;
+    log = fopen(pathing(source, "/log.tsv", result), "a+");
 ```
 
 Explanation
