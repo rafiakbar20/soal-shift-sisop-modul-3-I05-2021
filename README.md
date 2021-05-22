@@ -541,6 +541,8 @@ int lr(char buffer[], int *flag)
 ```
 
 Explanation
+Auth is used to classify client accounts. Accounts that are logged in at this time will be stored in the user for easy logging.
+If successfully logged in, it will escape the while loop
 
 Screenshot
 
@@ -580,6 +582,7 @@ void addtsv(FILE *files, char nama[], char publisher[], char tahun[], char ekste
 ```
 
 Explanation
+Organized by variable files. then create a procedure for adding to files.tsv using addtsv ()
 
 Screenshot
 
@@ -699,6 +702,7 @@ Source Code
 ```
 
 Explanation
+The add command will produce info = 1. the procedure is held by the code section below.
 
 Screenshot
 
@@ -799,6 +803,7 @@ else if(info == 5){
 ```
 
 Explanation
+Here is the download procedure. use fopen mode which rb and wb
 
 Screenshot
 
@@ -876,6 +881,7 @@ int deletefile(FILE *files, char name[], char source[], char result[]){
 ```
 
 Explanation
+It is handled by the deleteFile () function and on main it is also available.
 
 Screenshot
 
@@ -920,6 +926,7 @@ void see(FILE *files, char check[], char display[]){
 ```
 
 Explanation
+Handled by the see () function and played there too.
 
 Screenshot
 
@@ -987,6 +994,7 @@ void find(FILE *files, char check[], char display[], char buffer[]){
 ```
 
 Explanation
+Handled by the find () function and on main are also available. first, you must first check whether it is in files.tsv.
 
 Screenshot
 
@@ -1015,6 +1023,7 @@ void logging(FILE* log,int tipe, char nama[]){
 ```
 
 Explanation
+running.log is created at the beginning of the code. And we insert the logging () function when the add and delete commands are called.
 
 Screenshot
 
