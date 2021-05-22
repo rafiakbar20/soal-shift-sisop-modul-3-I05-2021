@@ -87,3 +87,75 @@ Client command example:
 ```
 delete TEMPfile.pdf
 ```
+
+# F.)
+Clients can see all the contents of files.tsv by calling the see command. Output
+of the command will follow this format.
+
+Client command example :
+
+```
+see
+```
+
+Client Console Output:
+
+```
+Name:
+Publisher:
+Publication year:
+File extension :
+Filepath :
+Name:
+Publisher:
+Publication Year:
+File extension:
+Filepath :
+```
+
+# G.)
+The client application can also do search by using the find command and a
+string. It will output the same format as number 6.
+
+Client command example:
+
+```
+find TEMP
+```
+
+# H.)
+Keverk is cautious on insertion and removal of files on the server, so he made a
+log file for the server named running.log. The content of the log file is following
+this format
+
+running.log
+```
+Tambah : File1.extension (id:pass)
+Hapus : File2.extension (id:pass)
+```
+
+But keverk has not yet understood the client and server system. Help Keverk to finish
+this project!
+
+Note:
+- It is not allowed to use system() dan execv(). Please do the task fully using
+thread and socket programming.
+- To download and upload, please use any text file with extension. The content of
+the file can be anything. (Please don’t use an empty file) and the accepted
+requirement is trial with the minimum of 5 data.
+
+Directory Structure:
+```
+├── Client
+│ ├── client.c
+│ ├── File2.extension
+│ └── File1.extension
+└── Server
+  ├── account.txt
+  ├── files.tsv
+  ├── server.c
+  ├── running.log
+  └── FILES
+    ├── File2.extension
+    └── File1.extension
+```
