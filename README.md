@@ -21,10 +21,10 @@ Keverk wanted the file that stores the id and password named account.txt with
 the following format:
 
 # account.txt
-``
+```
 id:password
 id2:password2
-``
+```
 
 # B.)
 The system has a database on a file named files.tsv. The content of the file is
@@ -38,25 +38,25 @@ insert new files to the server. FILES directory have a structure as follows :
 
 Direktori FILES
 
-``
+```
 File1.extension
 File2.extension
-``
+```
 
 First, the client send input to the server with the structure as follows:
 Client command example :
 
-``
+```
 add
-``
+```
 
 Client Console Output:
 
-``
+```
 Publisher:
 Publication year:
 Filepath:
-``
+```
 
 Then, we can fill the book’s data (please note that Filepath is the path to the file
 that will be sent to the server). Then the client will send the file to the server via
@@ -72,9 +72,9 @@ client in the client folder.
 
 Client command example
 
-``
+```
 download TEMPfile.pdf
-``
+```
 
 # E.)
 After that, the client can also delete file that is stored on the server. But keverk is
@@ -84,6 +84,6 @@ When the filename is changed, the row of the file in files.tsv will be deleted.
 
 Client command example:
 
-``
+```
 delete TEMPfile.pdf
-``
+```
