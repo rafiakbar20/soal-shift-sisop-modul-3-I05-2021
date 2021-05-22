@@ -188,9 +188,11 @@ Here are the libraries used to solve this problem:
 #define PORT 8080
 #define SIZE 1024
 ```
-Define server port and SIZE for later usse
+Define server port and SIZE for later use
+
 
 Server
+Server Function Initialization
 ```
 int createServerSocket(struct sockaddr_in *address, int *addrlen);
 int command(char buffer[], int *flag);
@@ -203,8 +205,9 @@ void find(FILE *files, char check[], char display[], char buffer[]);
 int locate(char fullpath[], char sy);
 void logging(FILE* log,int tipe, char nama[]);
 ```
-Function Initialization
 
+
+Server Socket Creator Function
 ```
 int createServerSocket(struct sockaddr_in *address, int *addrlen)
 {
@@ -235,8 +238,13 @@ int createServerSocket(struct sockaddr_in *address, int *addrlen)
     return fd;
 }
 ```
-Server socket creator function
 
+```
+    int server_fd = createServerSocket(&address, &addrlen);
+```
+
+
+Server Path Helper Function
 ```
 char *pathing(char path1[], char path2[], char result[]){
     strcpy(result, path1);
@@ -244,15 +252,47 @@ char *pathing(char path1[], char path2[], char result[]){
     return result;
 }
 ```
-Server Path helper function
+
+
+Server Global Iniitialization
+```
+    struct sockaddr_in address;
+    int new_socket, addrlen, flag = 1, info, auth = 0;
+    char delim[] = ":";
+    char buffer[1024];
+    char check[1024];
+    char source[100] = "/home/alvancho/Documents/IO5/Shift_3/Question_1/Server";
+    char result[100];
+    char display[10000];
+    
+    char *c_registers = "register";
+	  char *c_login = "login";
+	  char *c_add = "add";
+	  char *c_download = "download";
+	  char *c_delete = "delete";
+	  char *c_see = "see";
+	  char *c_find = "find";
+
+
+    FILE* akun;
+    FILE* files;
+    FILE* log;
+    akun = fopen(pathing(source, "/account.txt", result), "a+");
+    files = fopen(pathing(source, "/files.tsv", result), "a+");
+    log = fopen(pathing(source, "/log.tsv", result), "a+");
+    int status = mkdir(pathing(source, "/FILES", result),0777); //folder FILES
+```
+
 
 Client
+Client Function Initialization
 ```
 int createClientSocket(struct sockaddr_in *address, struct sockaddr_in *serv_addr);
 char *pathing(char path1[], char path2[], char result[]);
 ```
-Function Initialization
 
+
+Client socket creator function
 ```
 int createClientSocket(struct sockaddr_in *address, struct sockaddr_in *serv_addr)
 {
@@ -278,8 +318,13 @@ int createClientSocket(struct sockaddr_in *address, struct sockaddr_in *serv_add
     return fd;
 }
 ```
-Client socket creator function
 
+```
+    int client_fd = createClientSocket(&address, &serv_addr);
+```
+
+
+Client Path helper function
 ```
 char *pathing(char path1[], char path2[], char result[]){
     strcpy(result, path1);
@@ -287,7 +332,24 @@ char *pathing(char path1[], char path2[], char result[]){
     return result;
 }
 ```
-Client path helper function
+
+
+Client Global Initialization
+```
+    struct sockaddr_in address, serv_addr;
+    char command[1024];
+
+    char source[100] = "/home/alvancho/Documents/IO5/Shift_3/Question_1/Client";
+    char result[100];
+	  char *c_register = "register";
+	  char *c_login = "login";
+	  char *c_add = "add";
+	  char *c_download = "download";
+	  char *c_deletes = "delete";
+	  char *c_see = "see";
+	  char *c_find = "find";
+	  char *c_exit = "exit";
+```
 
 # A.)
 
