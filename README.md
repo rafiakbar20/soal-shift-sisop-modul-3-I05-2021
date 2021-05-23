@@ -417,7 +417,7 @@ Client Input (User Input)
 
 # A.)
 
-Source Code
+# Source Code
 
 *Server
 ```
@@ -540,16 +540,18 @@ int lr(char buffer[], int *flag)
         printf("%s\n", command);
 ```
 
-Explanation
+# Explanation
 First, we close previous possible active account, then we use fopen to write and add account.txt itselft if it isn't present yet. Set bubber memory to zero. Read input from client. Then we use the lr() function to give status message to client about the login, register or exit.
+
 We will use info flag for login/register check. In the case of login, initialize the login id and pass. Set the buffer memory to zero. Read id, copy, and send the next password prompt to client. Set memory to zero, read from client and copy and keep. Then we will check if the login id and password match any of the register id and password. If the login id and password match, then it will set the auth flag to 1 and send message that the login is successful, else the login failed.
+
 In the case of register, we will initialize login, pass, and pesan first. Then we set the buffer memory to zero and then read from client, keep the input, and prompt client for password, do the same thing. We will check if the input is the same as the account before or not and give it a flag. If it is not the same then 0 flag and input the new id and password into account.txt. Lastly send message status message to client.
 
-Screenshot
+# Screenshots
 
 # B.)
 
-Source Code
+# Source Code
 
 *Server
 ```
@@ -582,10 +584,18 @@ void addtsv(FILE *files, char nama[], char publisher[], char tahun[], char ekste
 }
 ```
 
-Explanation
-Organized by variable files. then create a procedure for adding to files.tsv using addtsv ()
 
-Screenshot
+Folder creation
+```
+int status = mkdir(pathing(source, "/FILES", result),0777); //folder FILES
+```
+
+# Explanation
+First, we close previous opened files or log and then initialize and open the files.tsv and set to zero. We will then read input from client and input value to info from command() function which checks command from client
+Folder FILES are made, automatically when the server is started
+Organized by variable files. then create a procedure for adding to files.tsv using addtsv (). Every changes on FILES will be recorded in log with tsv file containing the record of filename, publisher, publishing date, and filepath
+
+# Screenshot
 
 # C.)
 
@@ -702,10 +712,16 @@ Source Code
         }
 ```
 
-Explanation
-The add command will produce info = 1. the procedure is held by the code section below.
+# Explanation
+# Client
+If the command input from the client is add, then client will send the command to server and set the buffer memory to zero. It will then read the input and output the input from server. After that it will check the input again from user and send it to server. This process is done until filepath. After all of that, we will check if file exist and give tsv format for ot to be send to server.
+Server
+The add command will produce info = 1. the procedure is held by the code section above.
+# Sever
 
-Screenshot
+
+# Screenshot
+
 
 # D.)
 
