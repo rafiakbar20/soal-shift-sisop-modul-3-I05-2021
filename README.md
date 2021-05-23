@@ -541,8 +541,9 @@ int lr(char buffer[], int *flag)
 ```
 
 Explanation
-Auth is used to classify client accounts. Accounts that are logged in at this time will be stored in the user for easy logging.
-If successfully logged in, it will escape the while loop
+First, we close previous possible active account, then we use fopen to write and add account.txt itselft if it isn't present yet. Set bubber memory to zero. Read input from client. Then we use the lr() function to give status message to client about the login, register or exit.
+We will use info flag for login/register check. In the case of login, initialize the login id and pass. Set the buffer memory to zero. Read id, copy, and send the next password prompt to client. Set memory to zero, read from client and copy and keep. Then we will check if the login id and password match any of the register id and password. If the login id and password match, then it will set the auth flag to 1 and send message that the login is successful, else the login failed.
+In the case of register, we will initialize login, pass, and pesan first. Then we set the buffer memory to zero and then read from client, keep the input, and prompt client for password, do the same thing. We will check if the input is the same as the account before or not and give it a flag. If it is not the same then 0 flag and input the new id and password into account.txt. Lastly send message status message to client.
 
 Screenshot
 
@@ -1029,4 +1030,6 @@ Screenshot
 
 Problems
 
-
+Notable inbuilt function:
+strtok() = The C library function char *strtok(char *str, const char *delim) breaks string str into a series of tokens using the delimiter delim.
+strcspn() = The C library function size_t strcspn(const char *str1, const char *str2) calculates the length of the initial segment of str1, which consists entirely of characters not in str2.
