@@ -718,14 +718,13 @@ If the command input from the client is add, then client will send the command t
 Server
 The add command will produce info = 1. the procedure is held by the code section above.
 # Sever
-
-
+First, we initialize all things we need. Then we set the buffer memory to zero, read the input from client, copy and keep and send back to client. Initialize pointer and locate the comp. and also give a new record to log
 # Screenshot
 
 
 # D.)
 
-Source Code
+# Source Code
 
 *Server
 ```
@@ -819,10 +818,17 @@ else if(info == 5){
             continue;
 ```
 
-Explanation
+# Explanation
 Here is the download procedure. use fopen mode which rb and wb
+# Client
+If command is download, then we will send the command to server, set the buffer memory to zero and then read response from server and output it.
 
-Screenshot
+# Server
+Initialize things needed, give feedback 
+We use locate to find the file to be dwonloaded
+
+
+# Screenshot
 
 # E.)
 
@@ -1049,3 +1055,4 @@ Problems
 Notable inbuilt function:
 strtok() = The C library function char *strtok(char *str, const char *delim) breaks string str into a series of tokens using the delimiter delim.
 strcspn() = The C library function size_t strcspn(const char *str1, const char *str2) calculates the length of the initial segment of str1, which consists entirely of characters not in str2.
+bzero() = The bzero() function erases the data in the n bytes of the memorystarting at the location pointed to by s, by writing zeros (bytes containing '\0') to that area.
