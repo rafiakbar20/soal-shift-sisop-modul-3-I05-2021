@@ -1056,3 +1056,140 @@ Notable inbuilt function:
 strtok() = The C library function char *strtok(char *str, const char *delim) breaks string str into a series of tokens using the delimiter delim.
 strcspn() = The C library function size_t strcspn(const char *str1, const char *str2) calculates the length of the initial segment of str1, which consists entirely of characters not in str2.
 bzero() = The bzero() function erases the data in the n bytes of the memorystarting at the location pointed to by s, by writing zeros (bytes containing '\0') to that area.
+
+
+
+# SOAL 3
+
+
+During his time of inactivity, a student named Alex. He had an idea to tidy up a number of files on his laptop. Because there are too many files, Alex asked Ayub for advice. Ayub suggests creating a C program to categorize the files. This program will move files according to their extension into a folder according to the extension. The folder is in the working directory in which the categorization program is run.
+
+# A.) In question 3a we are asked to categorize files in a folder according to their extension. For this question number 3a we are asked to create a program that accepts the -f option, which means that the user can add file arguments that can be categorized as desired. Next, we initialize the thread and create a count variable which we use to calculate the number of files that have been categorized. After that we create a thread to categorize files based on their file extensions. 
+```
+pthread_t tid[argc-2];
+int count = 0;
+for(int i=2; i<argc; i++){
+	if(access(argv[i], F_OK) == 0){
+		pthread_create(&tid[count], NULL, categorize, (void *)argv[i]);
+		count++;
+		printf("File %d : Berhasil Dikategorikan\n", i-1);
+	}
+	else printf("File %d : Sad, gagal :(\n", i-1);
+}
+```
+Furthermore, for the catagorize function we create file categories starting from searching for file extensions, creating folders, searching for file names and rename filepaths.
+```
+void* categorize(void *arg){
+	char *src = (char *)arg;
+	char srcP[150];
+	memcpy(srcP, (char*)arg, 400);
+	char *srcExt = checkExt(src);
+	char ext[400];
+	strcpy(ext, srcExt);
+	
+	DIR *dir = opendir(srcExt);
+	if(dir) closedir(dir);
+	else if(ENOENT == errno) mkdir(srcExt, 0755);
+	
+	char *srcName = checkName(srcP);
+	char *curr = getenv("PWD");
+	
+	char destP[512];
+	sprintf(destP, "%s/%s/%s", curr, ext, srcName);
+	rename(srcP, destP);
+}
+```
+Next we create a check name function to check and get the name of the input file.
+```
+char *checkName(char *dir){
+	char *name = strrchr(dir, '/');
+	if(name == dir) return "";
+	return name + 1;
+}
+```
+# B.) For number 3b, the input used is the -d option, which means that the user can only enter one directory input. First of all we check the compatibility of existing argc and argv. After that, open the folder that was entered, if the folder is found, it will look for the number of files in it so that there is one so that we can adjust it. Next we create a file categorization file using threads.
+
+```
+else if(argc == 3 && strcmp(argv[1], "-d") == 0){
+		DIR *fd = opendir(argv[2]);
+		if(fd){
+			struct dirent *dp;
+			int threadSize = 0;
+			while((dp = readdir(fd)) != NULL){
+				if(dp->d_type == DT_REG){
+					threadSize++;
+				}
+			}
+			categorizeFolder(argv[2], threadSize);
+			closedir(fd);
+			printf("Direktori sukses disimpan!\n");
+		}
+		else if(ENOENT == errno) printf("Yah, gagal disimpan :(\n");
+	}
+```
+Furthermore, in the catagorized folder function, which is to categorize files based on their extensions, which starts by opening the input directory then checking each file in that directory so that the categories will be created later.
+```
+void categorizeFolder(char *folderPath, int threadSize){
+	DIR *fd = opendir(folderPath);
+	struct dirent *dp;
+	pthread_t tid[threadSize];
+	int count = 0;
+	char fileName[400][400];
+	
+	while((dp = readdir(fd)) != NULL){
+		if(dp->d_type == DT_REG){
+			sprintf(fileName[count], "%s/%s", folderPath, dp->d_name);
+			pthread_create(&tid[count], NULL, categorize, (void *)fileName[count]);
+			count++;
+		}
+		else if((dp->d_type == DT_DIR) && strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0) {
+            char folderPath2[400];
+            sprintf(folderPath2, "%s/%s", folderPath, dp->d_name);
+            DIR *fd2 = opendir(folderPath2);
+            struct dirent *dp2;
+			int threadSize2 = 0;
+			while((dp2 = readdir(fd2)) != NULL){
+				if(dp2->d_type == DT_REG){
+					threadSize2++;
+				}
+			}
+			categorizeFolder(folderPath2, threadSize2);
+			closedir(fd2);
+        }
+	}
+```
+# C.) In question number 3c, it is actually not that different from question number 3b. In question 3c we are asked to categorize files in a folder, the difference here is in the input options given, which is * which means that all files in the working directory will be categorized when running the program.
+```
+else if(argc == 2 && strcmp(argv[1], "*") == 0){
+		char *curr = getenv("PWD");
+		DIR *dir = opendir(curr);
+		struct dirent *dp;
+		int threadSize = 0;
+		while((dp = readdir(dir)) != NULL){
+			if(dp->d_type == DT_REG){
+				threadSize++;
+			}
+		}
+		categorizeFolder(curr, threadSize);
+		closedir(dir);
+	}
+```
+# D.) If the file doesn't have an extension behind it it will be categorized as Unknown. As for the hidden file name itself, the file also has a prefix.
+```
+char *checkExt(char *dir){
+	char *unk = {"Unknown"};
+	char *hid = {"Hidden"};
+	char *tmp = strrchr(dir, '/');
+	if(tmp[1] == '.') return hid;
+	
+	int i = 0;
+	while(i < strlen(tmp) && tmp[i] != '.') i++;
+	if(i == strlen(tmp)) return unk;
+	
+	char ext[400];
+	int j = i;
+	while(i < strlen(tmp)) ext[i-j] = tmp[i], i++;
+	return lowercase(ext + 1);
+}
+```
+# E.) In Problem 3e, we are asked to create a thread for each file that will be categorized so that it can run parallel so that the category process can run faster. Therefore we make the number of files according to the number of files to be categorized.
